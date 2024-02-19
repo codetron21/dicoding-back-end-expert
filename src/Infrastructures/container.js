@@ -29,6 +29,8 @@ const LogoutUserUseCase = require('../Applications/use_case/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/RefreshAuthenticationUseCase');
 const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../Applications/use_case/GetDetailThreadUseCase');
+const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase');
+const DeleteCommentUseCase = require('../Applications/use_case/DeleteCommentUseCase');
 
 // creating container
 const container = createContainer();
@@ -109,7 +111,7 @@ container.register([
                 },
             ],
         }
-    }
+    },
 ]);
 
 // registering use cases
@@ -193,10 +195,6 @@ container.register([
             injectType: 'destructuring',
             dependencies: [
                 {
-                    name: 'authenticationRepository',
-                    internal: AuthenticationRepository.name,
-                },
-                {
                     name: 'authenticationTokenManager',
                     internal: AuthenticationTokenManager.name,
                 },
@@ -224,6 +222,48 @@ container.register([
             ],
         }
     },
+    {
+        key: AddCommentUseCase.name,
+        Class: AddCommentUseCase,
+        parameter: {
+            injectType: 'destructuring',
+            dependencies: [
+                {
+                    name: 'authenticationTokenManager',
+                    internal: AuthenticationTokenManager.name,
+                },
+                {
+                    name: 'commentRepository',
+                    internal: CommentRepository.name
+                },
+                {
+                    name: 'threadRepository',
+                    internal: ThreadRepository.name
+                },
+            ],
+        },
+    },
+    {
+        key: DeleteCommentUseCase.name,
+        Class: DeleteCommentUseCase,
+        parameter: {
+            injectType: 'destructuring',
+            dependencies: [
+                {
+                    name: 'authenticationTokenManager',
+                    internal: AuthenticationTokenManager.name,
+                },
+                {
+                    name: 'commentRepository',
+                    internal: CommentRepository.name
+                },
+                {
+                    name: 'threadRepository',
+                    internal: ThreadRepository.name
+                },
+            ],
+        },
+    }
 ]);
 
 module.exports = container;

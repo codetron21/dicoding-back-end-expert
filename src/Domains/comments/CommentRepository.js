@@ -1,5 +1,14 @@
 class CommentRepository {
-    async addComment(threadId, content) {
+
+    async verifyCommentOwner(commentId, owner) {
+        throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    }
+
+    async checkAvailabilityComment(id) {
+        throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    }
+
+    async addComment(threadId, owner, content) {
         throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 

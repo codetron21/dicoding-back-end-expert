@@ -3,25 +3,19 @@ const AddThread = require('../../Domains/threads/entities/AddThread');
 class AddThreadUseCase {
 
     constructor({
-                    authenticationRepository,
                     authenticationTokenManager,
                     threadRepository,
                 }) {
-        this._authenticationRepository = authenticationRepository;
         this._authenticationTokenManager = authenticationTokenManager;
         this._threadRepository = threadRepository;
     }
 
-    async execute(useCasePayload) {
-        this._verifyPayload(useCasePayload);
-        const {refreshToken} = useCasePayload;
-
+    async execute(useCasePayload, accessToken) {
+        accessToken = this._validateAndGetAccessToken(accessToken);
         const addThread = new AddThread(useCasePayload);
 
-        await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
-        await this._authenticationRepository.checkAvailabilityToken(refreshToken);
-
-        const {id} = await this._authenticationTokenManager.decodePayload(refreshToken);
+        await this._authenticationTokenManager.verifyAccessToken(accessToken);
+        const {id} = await this._authenticationTokenManager.decodePayload(accessToken);
 
         return await this._threadRepository.addThread(
             addThread.title,
@@ -30,18 +24,13 @@ class AddThreadUseCase {
         )
     }
 
-    _verifyPayload(payload) {
-        const {refreshToken} = payload;
-
-        if (!refreshToken) {
-            throw new Error('ADD_THREAD_USE_CASE.NOT_CONTAIN_REFRESH_TOKEN');
+    _validateAndGetAccessToken(token) {
+        if(!token) {
+            throw new Error('ADD_THREAD_USE_CASE.NOT_CONTAIN_ACCESS_TOKEN');
         }
 
-        if (typeof refreshToken !== 'string') {
-            throw new Error('ADD_THREAD_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-        }
+        return token.split(" ")[1];
     }
-
 }
 
 module.exports = AddThreadUseCase;
