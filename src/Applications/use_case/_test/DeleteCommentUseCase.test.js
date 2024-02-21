@@ -52,4 +52,51 @@ describe('DeleteCommentUseCase', () => {
         expect(mockTokenManager.decodePayload)
             .toBeCalledWith(token);
     });
+
+    it('success delete comment (no thrown an error)', async () => {
+        // Arrange
+        const accessToken = 'Bearer token';
+        const token = 'token';
+        const mockTokenManager = new AuthenticationTokenManager();
+        const mockThreadRepository = new ThreadRepository();
+        const mockCommentRepository = new CommentRepository();
+        const params = {threadId: '1', commentId: '1'};
+        const owner = 1;
+
+        mockTokenManager.verifyAccessToken = jest.fn()
+            .mockImplementation(() => Promise.resolve());
+        mockTokenManager.decodePayload = jest.fn()
+            .mockImplementation(() => Promise.resolve({id: owner}));
+        mockThreadRepository.checkAvailabilityThread = jest.fn()
+            .mockImplementation(() => Promise.resolve());
+        mockCommentRepository.checkAvailabilityComment = jest.fn()
+            .mockImplementation(() => Promise.resolve());
+        mockCommentRepository.verifyCommentOwner = jest.fn()
+            .mockImplementation(() => Promise.resolve());
+        mockCommentRepository.removeComment = jest.fn()
+            .mockImplementation(() => Promise.resolve());
+
+        const useCase = new DeleteCommentUseCase({
+            authenticationTokenManager: mockTokenManager,
+            commentRepository: mockCommentRepository,
+            threadRepository: mockThreadRepository
+        });
+
+        // Act
+        await useCase.execute(params, accessToken);
+
+        // Assert
+        expect(mockTokenManager.verifyAccessToken)
+            .toBeCalledWith(token);
+        expect(mockTokenManager.decodePayload)
+            .toBeCalledWith(token);
+        expect(mockThreadRepository.checkAvailabilityThread)
+            .toBeCalledWith(params.threadId);
+        expect(mockCommentRepository.checkAvailabilityComment)
+            .toBeCalledWith(params.commentId);
+        expect(mockCommentRepository.verifyCommentOwner)
+            .toBeCalledWith(params.commentId,owner);
+        expect(mockCommentRepository.removeComment)
+            .toBeCalledWith(params.threadId, params.commentId);
+    });
 });
